@@ -1,0 +1,163 @@
+% Copyright (C) 2019 Esote.
+% Permission is granted to copy, distribute and/or modify this document
+% under the terms of the GNU Free Documentation License, Version 1.3
+% or any later version published by the Free Software Foundation;
+% with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+% A copy of the license is included in the section entitled "GNU
+% Free Documentation License".
+
+\documentclass{beamer}
+\mode<presentation> {
+\usetheme{Madrid}
+\setbeamertemplate{navigation symbols}{}
+}
+
+\title[BonesBSD\hspace{1em}\texttt{\href{https://github.com/esote/bonesbsd}{github.com/esote/bonesbsd}}]{Introducing BonesBSD}
+
+\date{April 24, 2019}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+	\centering
+	\texttt{\href{https://github.com/esote/bonesbsd}{github.com/esote/bonesbsd}}
+\end{frame}
+
+\begin{frame}{Overview}
+	\tableofcontents
+\end{frame}
+
+\section{About}
+
+\setlength{\parskip}{3em}
+
+\begin{frame}{About}
+	BonesBSD is a fork of the OpenBSD kernel on \texttt{-current}.
+
+	The goal is to maintain the most useful or critical functionality,
+	removing unused parts of the kernel.
+\end{frame}
+
+\section{History}
+
+\begin{frame}{History}
+	\begin{table}
+		\begin{tabular}{|c|c c|}
+			\hline
+			Change & Diff & \\
+			\hline
+			Initial commit & +3,174,432 & \\
+			Remove macppc, socppc & +13 & -47,349 \\
+			Remove powerpc & +15 & -12,039 \\
+			Remove hppa & +13 & -53,093 \\
+			Remove alpha & +26 & -63,034 \\
+			Remove loongson, mips64, octeon, sgi & +15 & -129,373 \\
+			Remove sparc64 and afb microcode & +27 & -125,641 \\
+			\hline
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}{History}
+	\begin{table}
+		\begin{tabular}{|c|c c|}
+			\hline
+			Change & Diff & \\
+			\hline
+			Remove m88k, luna88k & +3 & -46,583 \\
+			Remove landisk & +8 & -8,805 \\
+			Remove arm & +14 & -90,010 \\
+			Remove sh & & -20,274 \\
+			Remove NTFS & +2 & -4,414 \\
+			Remove NFS and \texttt{nfssvc(2)} & +22 & -18,064 \\
+			Remove FUSE & +7 & -3,331 \\
+			Remove drm (inteldrm, radeondrm) & +6 & -394,799 \\
+			\hline
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}{History}
+	\setlength{\parskip}{\baselineskip}
+
+	Lines before: 3,174,432
+
+	Lines after: 336,921 (89\% decrease)
+
+	Compiled size before: 14.7M (amd64)
+
+	Compiled size after: 10.9M (25\% decrease)
+
+	Still functions the same on amd64 and i386.
+\end{frame}
+
+\section{Breaking Userspace}
+
+\begin{frame}{Breaking Userspace}
+	Breaking userspace is inevitable. If you want to use an architecture no
+	longer supported: too bad.
+
+	For cases of noticeable errors in userspace, if they're avoidable I
+	generate a patch.
+
+	Ex: \texttt{patches/0001-Remove-rc-NFS-reference.patch}
+\end{frame}
+
+\section{Installation}
+
+\setlength{\parskip}{\baselineskip}
+
+\begin{frame}{Installation}
+	\begin{enumerate}
+		\item Install OpenBSD
+		\item Clone BonesBSD
+		\item \texttt{cd bonesbsd/sys/arch/\$(machine)/compile/GENERIC.MP/}
+		\item \texttt{make obj}
+		\item \texttt{make config}
+		\item \texttt{ln -sf /usr/bin/gcc /usr/bin/cc}
+		\item \texttt{make} (until error occurs assembling \texttt{locore.S})
+		\begin{itemize}
+			\item Might care enough to actually fix this later
+		\end{itemize}
+		\item \texttt{ln -sf /usr/bin/clang /usr/bin/cc}
+		\item Remove line 43 from \texttt{obj/Makefile} (\texttt{-msave-args})
+		\item \texttt{make}
+		\item \texttt{make install}
+	\end{enumerate}
+	Old kernel is moved to \texttt{/obsd}.
+\end{frame}
+
+\section{What's next}
+
+\begin{frame}{What's next}
+	Still plenty of things to remove:
+	\begin{itemize}
+		\item \textbf{ipv6} (ie \texttt{sys/netinet6/})
+		\item IBM eFUSE
+		\item isofs (ie \texttt{sys/isofs/}, both cd9660 and udf)
+		\item Xenocara, aperture driver, etc. X.org remnants
+		\item msdosfs (ie \texttt{sys/msdosfs/})
+		\item Hyper-V virtualization (ie \texttt{sys/arch/\$(machine)/})
+		\item VMware tools (ie \texttt{sys/arch/\$(machine)/})
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{What's next}
+	Undecided:
+	\begin{itemize}
+		\item mouse? (pseudo-devices, wsmouse daemon, drivers, etc.)
+		\item wireless? (IEEE 802.11, ie \texttt{sys/net80211/})
+		\item audio? (and sndio) --- will likely require userspace patches
+		\item fifofs? (ie \texttt{sys/miscfs/fifofs/})
+		\item deadfs? (ie \texttt{sys/miscfs/deadfs/})
+	\end{itemize}
+
+	Complex:
+	\begin{itemize}
+		\item Merge upstream changes occasionally (maybe only every time OpenBSD has a release)
+		\item Rewrite certain userspace things that break, so they don't depend on removed syscalls.
+	\end{itemize}
+\end{frame}
+
+\end{document}
