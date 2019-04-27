@@ -1,0 +1,3 @@
+Slide 8 details an assembler bug that required symlink switching between GCC
+and Clang. This is no longer needed in OpenBSD 6.5 due to a userspace update:
+the default /usr/bin/cc (Clang) is sufficient to build BonesBSD with no issues.
