@@ -1,0 +1,295 @@
+% Copyright (C) 2019 Esote.
+% Permission is granted to copy, distribute and/or modify this document
+% under the terms of the GNU Free Documentation License, Version 1.3
+% or any later version published by the Free Software Foundation;
+% with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+% A copy of the license is included in the section entitled "GNU
+% Free Documentation License".
+
+\documentclass{beamer}
+\usepackage{hyperref}
+
+\newcommand{\bhref}[2]{\href{#1}{\color{blue}{\underline{#2}}}}
+\definecolor{darkgreen}{rgb}{0.0, 0.6, 0.0}
+
+\mode<presentation> {
+\usetheme{Madrid}
+\setbeamertemplate{navigation symbols}{}
+}
+
+\title[PGP\hspace{1em}]{PGP}
+\subtitle{Pretty Good Privacy and related things.}
+
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{frame}{Overview}
+	\tableofcontents
+\end{frame}
+
+\section{History}
+
+\begin{frame}{History}
+	\begin{enumerate}
+		\setlength{\itemsep}{1.5em}
+
+		\item PGP began as a program written by Phil Zimmermann in 1991
+		for symmetric encryption and decryption.
+
+		\item Zimmermann was prosecuted by the US for the illegal export
+		of munitions. Started PGP Inc., which was later bought out.
+
+		\item Former PGP Inc. employees formed the PGP Corporation,
+		which was later bought out.
+
+		\item PGP Inc. proposed a standard to the IETF called OpenPGP.
+
+		\item Two years later the FSF wrote GPG from OpenPGP.
+	\end{enumerate}
+\end{frame}
+
+\section{Terminology}
+
+\begin{frame}{Terminology}
+	\textbf{PGP}:
+	\begin{itemize}
+		\item ``Pretty Good Privacy" is a program by Phil Zimmermann.
+
+		\item Able to encrypt, decrypt, sign, and verify things using
+		many kinds of cryptography.
+	\end{itemize}
+
+	\textbf{OpenPGP}:
+	\begin{itemize}
+		\item Standardization of PGP for digital interchange.
+
+		\begin{itemize}
+			\item Packets, ASCII armor, algorithm constants,
+			fingerprints, keyrings, etc.
+		\end{itemize}
+
+		\item Came from the PGP program written by Zimmermann.
+
+		\item ``Proposed standard" not a full standard, yet.
+		\bhref{https://tools.ietf.org/html/rfc4880}{RFC 4880}.
+	\end{itemize}
+
+	\textbf{GPG}:
+	\begin{itemize}
+		\item ``GNU Privacy Guard" is an implementation of OpenPGP as
+		part of the GNU Project.
+	\end{itemize}
+\end{frame}
+
+\section{Using GPG}
+
+\begin{frame}{Using GPG: keys}
+	\bhref{https://www.gnupg.org/gph/en/manual/book1.html}{GPG online
+	manual}.
+
+	\small
+	\def\arraystretch{2.8}
+
+	\begin{tabular}{ll}
+	Generating a key: & \texttt{\$ gpg2 --full-gen-key} \\
+
+	Or, elliptic curves: & \texttt{\$ gpg2 --full-gen-key --expert} \\
+
+	List public key: & \texttt{\$ gpg2 --list-keys} \\
+
+	Export: & \texttt{\$ gpg2 --armor --export \{key\}} \\
+
+	Receive key: & \texttt{\$ gpg2 --recv-keys \{key\} --keyserver \{URL\}}
+	\\
+
+	{\color{red}Send to keyserver:} & \texttt{\$ gpg2 --send-keys \{key\}
+	--keyserver \{URL\}}
+	\end{tabular}
+\end{frame}
+
+\begin{frame}[fragile]{Using GPG: encrypting}
+	\setlength{\parskip}{1.5em}
+
+	Use hidden recipients! \texttt{--hidden-recipient} rather than
+	\texttt{--recipient}
+
+	\small
+	\def\arraystretch{3}
+
+	\begin{tabular}{ll}
+	Encrypt file: & \begin{minipage}{0em}
+	\begin{verbatim}
+	$ gpg2 --encrypt --hidden-recipient {key} \
+       --output {output} {input}
+       \end{verbatim}
+       \end{minipage} \\
+
+	Or, ASCII armor: & \texttt{\$ gpg2 --armor --encrypt ...}\\
+
+	Decrypt file: & \texttt{\$ gpg2 --output \{output\} --decrypt \{input\}}
+	\end{tabular}
+\end{frame}
+
+\begin{frame}{Using GPG: signing}
+	\small
+	\def\arraystretch{3}
+
+	\begin{tabular}{ll}
+	Sign and compress: & \texttt{\$ gpg2 --output \{output\} --sign
+	\{input\}} \\
+
+	Verify: & \texttt{\$ gpg2 --verify \{input\}} \\
+
+	Verify and decompress: & \texttt{\$ gpg2 --output \{output\} --decrypt
+	\{input\}} \\
+
+	Clearsign: & \texttt{\$ gpg2 --output \{output\} --clearsign \{input\}}
+	\\
+
+	Detached signatures: & \texttt{\$ gpg2 --output \{output\} --detach-sig
+	\{input\}} \\ \end{tabular}
+\end{frame}
+
+\section{Recent News}
+
+\begin{frame}{Recent News: SKS Keyserver Poisoning}
+	\setlength{\parskip}{1em}
+
+	\bhref{https://gist.github.com/rjhansen/67ab921ffb4084c865b3618d6955275f}{Full
+	write-up}.
+
+	\begin{itemize}
+		\item Keyservers are a registry of PGP keys.
+
+		\item OpenPGP allows key signing: submitting a signature of
+		someone's public key establishing your trust in the owner of
+		that key. Sometimes done through ``key signing parties." This is
+		essential to the web-of-trust model.
+
+		\item SKS keyservers are a popular, high-performing, distributed
+		pool of keyservers. SKS keyservers, and many other kinds of
+		keyservers, do not stop random people from signing your key.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Recent News: SKS Keyserver Poisoning}
+	\setlength{\parskip}{1em}
+
+	The vulnerability is from spamming a key with signatures (order of
+	150,000). This breaks GPG, but is isn't a vulnerability in the OpenPGP
+	specification itself.
+
+	Possible solutions:
+
+	\begin{itemize}
+		\item Modify the OpenPGP spec to require approval of key
+		signatures before they attach themselves to a key.
+
+		\item Modify keyservers to require some kind of verification or
+		authentication for sending your key, or sending your key
+		signatures.
+	\end{itemize}
+\end{frame}
+
+\section{Cryptography}
+
+\begin{frame}{Cryptography}
+	\textbf{Symmetric cryptography}:
+	\begin{itemize}
+		\item Cryptographic algorithms that use the same key for
+		encryption and decryption.
+
+		\item Key should be kept secret.
+	\end{itemize}
+
+	\textbf{Asymmetric cryptography}:
+	\begin{itemize}
+		\item Cryptographic algorithms that use different keys for
+		encryption and decryption.
+
+		\item One key can be shared, one key should be kept secret.
+	\end{itemize}
+
+	\textbf{Digital signatures}:
+	\begin{itemize}
+		\item Use your private key to sign data, which can be verified
+		through your public key.
+
+		\item Provides integrity, authentication, and non-repudiation.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Cryptography}
+	\textbf{RSA}:
+	\begin{itemize}
+		\item One such asymmetric cryptographic algorithm.
+
+		\item Let $e, d, n$ be large positive numbers such that $\forall
+		m$ where $0 \leqslant m \leqslant n$, $(m^e)^d \equiv m \mod n$.
+
+		\item ... and
+		\bhref{https://people.csail.mit.edu/rivest/Rsapaper.pdf}{lots}
+		\bhref{https://patentimages.storage.googleapis.com/49/43/9c/b155bf231090f6/US4405829.pdf}{more}
+		\bhref{https://github.com/libressl-portable/openbsd/tree/master/src/lib/libcrypto/rsa}{math}.
+	\end{itemize}
+
+	\textbf{DSA}:
+	\begin{itemize}
+		\item Like RSA, but faster for signing and decrypting, but
+		slower for verifying and encrypting.
+	\end{itemize}
+
+	\textbf{ECC}:
+	\begin{itemize}
+		\item Elliptic-curve cryptography
+
+		\item Smaller keys for equal strength crypto
+
+		\item Be careful which curves you use
+		\begin{itemize}
+			\item {\color{darkgreen}Prefer: EdDSA / Ed25519 /
+			Curve25519}
+
+			\item {\color{red}Avoid: EcDSA (NSA backdoor)}
+		\end{itemize}
+
+		\item Weaker to quantum cryptography than RSA.
+	\end{itemize}
+\end{frame}
+
+\section{Ramble}
+
+\begin{frame}{Ramble}
+	Ramble provides transparent and secure PGP-based messaging.
+
+	\begin{itemize}
+		\item Users introduce themselves to the server.
+
+		\item Send messages as part of conversations.
+
+		\item View messages.
+	\end{itemize}
+
+	All communication is done with your own PGP keys.
+
+	\begin{itemize}
+		\item Server requires key verification through nonce signatures
+		before communicating.
+
+		\item All messages are encrypted, the server cannot know their
+		contents nor their recipients.
+
+		\item \textbf{Even if a third party watches all connections they
+		will gain no useful knowledge.}\footnote{Assuming you use hidden
+		recipients for encrypted messages.}
+	\end{itemize}
+
+	\bhref{https://github.com/esote/ramble}{https://github.com/esote/ramble}
+\end{frame}
+
+\end{document}
